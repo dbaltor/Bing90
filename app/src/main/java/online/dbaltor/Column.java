@@ -31,14 +31,14 @@ public class Column {
     }
 
     public List<Integer> getNumbers() {
-        var result = new ArrayList<Integer>(numberOfRows);
+        var numbers = new ArrayList<Integer>(numberOfRows);
         for (var i = 2; i >= 0; i--) {
-            if ((~blankMap & (1 << i)) != 0) {
-                result.add(orderingQueue.poll());
+            if ((blankMap & (1 << i)) != 0) {
+                numbers.add(0);
             } else {
-                result.add(0);
+                numbers.add(orderingQueue.poll());
             }
         }
-        return result;
+        return numbers;
     }
 }
