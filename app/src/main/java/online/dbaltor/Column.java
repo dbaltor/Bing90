@@ -27,7 +27,7 @@ public class Column {
     }
 
     public boolean add(Integer number) {
-        if (orderingQueue.size() < capacity) {
+        if (numbers.size() < capacity) {
             orderingQueue.add(number);
             if (orderingQueue.size() == capacity) {
                 createNumberList();

@@ -92,4 +92,56 @@ public class TicketGeneratorTest {
         assertEquals(expectedMessage, exception.getMessage());
     }
 
+    @Test
+    @DisplayName("A ticket should reject a request for an invalid row number")
+    public void aTicketShouldRejectARequestForAnInvalidRowNumber() {
+        // Given
+        var ticket = new Ticket();
+        // When
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    ticket.getRow(4);
+                });
+        // Then
+        assertEquals("Invalid row number", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("A number should be added to the right column")
+    public void aNumberShouldBeAddedToTheRightColumn() {
+        // Given
+        var ticket = new Ticket();
+        // When
+        ticket.add(31);
+        ticket.add(34);
+        ticket.add(37);
+        // Then
+        assertTrue(ticket.getColumns().get(3).getNumbers().contains(31));
+    }
+
+    @Test
+    @DisplayName("Each ticket row should contain 5 numbers and 4 blanks")
+    public void eachTicketRowShouldContain5NumbersAnd4Blanks() {
+        // Given
+        var ticket = new Ticket();
+        ticket.add(1); ticket.add(2); ticket.add(3);
+        ticket.add(11); ticket.add(12); ticket.add(13);
+        ticket.add(21); ticket.add(22); ticket.add(23);
+        ticket.add(31); ticket.add(32); ticket.add(33);
+        ticket.add(41); ticket.add(42); ticket.add(43);
+        ticket.add(51); ticket.add(52); ticket.add(53);
+        ticket.add(61); ticket.add(62); ticket.add(63);
+        ticket.add(71); ticket.add(72); ticket.add(73);
+        ticket.add(81); ticket.add(82); ticket.add(83);
+        // When
+        var row0Blanks = ticket.getRow(0).stream()
+                .filter(number -> number == 0)
+                .count();
+        var row0Numbers = ticket.getRow(0).stream()
+                .filter(number -> number != 0)
+                .count();
+        // Then
+        assertEquals(4, row0Blanks);
+        assertEquals(5, row0Numbers);
+    }
 }
