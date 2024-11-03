@@ -66,7 +66,7 @@ public class TicketGeneratorTest {
     @DisplayName("A column should not contain three blanks")
     public void aColumnShouldNotContainThreeSpaces() {
         // Given
-        var expectedMessage = "A column cannot contain three blanks";
+        var expectedMessage = "Column cannot contain three blanks";
         // When
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> {
@@ -75,4 +75,21 @@ public class TicketGeneratorTest {
         // Then
         assertEquals(expectedMessage, exception.getMessage());
     }
+
+    @Test
+    @DisplayName("A column should not return numbers before initialised")
+    public void aColumnShouldNotReturnNumbersBeforeInitialised() {
+        // Given
+        var expectedMessage = "Column has not been fully initialised";
+        var column = new Column(3, 0b100);
+        column.add(1);
+        // When
+        var exception = assertThrows(IllegalStateException.class,
+                () -> {
+                    var numbers = column.getNumbers();
+                });
+        // Then
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
 }
