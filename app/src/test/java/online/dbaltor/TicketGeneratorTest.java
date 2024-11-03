@@ -61,4 +61,18 @@ public class TicketGeneratorTest {
         assertIterableEquals(List.of(1, 5, 9), column1Numbers);
         assertIterableEquals(List.of(5, 0, 9), column2Numbers);
     }
+
+    @Test
+    @DisplayName("A column should not contain three blanks")
+    public void aColumnShouldNotContainThreeSpaces() {
+        // Given
+        var expectedMessage = "A column cannot contain three blanks";
+        // When
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    var column = new Column(3, 0b111);
+                });
+        // Then
+        assertEquals(expectedMessage, exception.getMessage());
+    }
 }

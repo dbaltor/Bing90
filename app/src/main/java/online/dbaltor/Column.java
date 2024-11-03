@@ -12,12 +12,14 @@ public class Column {
     private final Queue<Integer> orderingQueue;
 
     public Column(int numberOfRows, int blankMap) {
-        this.orderingQueue = new PriorityQueue<>(numberOfRows);
+        if (blankMap == 0b111) // means three spaces
+            throw new IllegalArgumentException("A column cannot contain three blanks");
         this.blankMap = blankMap;
         this.numberOfRows = numberOfRows;
         this.capacity = ((~blankMap & 0b100) >> 2)
             + ((~blankMap & 0b010) >> 1)
             + (~blankMap & 0b001);
+        this.orderingQueue = new PriorityQueue<>(numberOfRows);
     }
 
     public boolean add(Integer number) {
