@@ -3,6 +3,7 @@ package online.dbaltor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,9 +16,8 @@ public class TicketGeneratorTest {
         // Given
         var strip = new Strip();
         // When
-        strip.generateTickets();
-        // Then
         var numberOfTickets = strip.getTickets().size();
+        // Then
         assertEquals(6, numberOfTickets);
     }
 
@@ -124,15 +124,33 @@ public class TicketGeneratorTest {
     public void eachTicketRowShouldContain5NumbersAnd4Blanks() {
         // Given
         var ticket = new Ticket();
-        ticket.add(1); ticket.add(2); ticket.add(3);
-        ticket.add(11); ticket.add(12); ticket.add(13);
-        ticket.add(21); ticket.add(22); ticket.add(23);
-        ticket.add(31); ticket.add(32); ticket.add(33);
-        ticket.add(41); ticket.add(42); ticket.add(43);
-        ticket.add(51); ticket.add(52); ticket.add(53);
-        ticket.add(61); ticket.add(62); ticket.add(63);
-        ticket.add(71); ticket.add(72); ticket.add(73);
-        ticket.add(81); ticket.add(82); ticket.add(83);
+        ticket.add(1);
+        ticket.add(2);
+        ticket.add(3);
+        ticket.add(11);
+        ticket.add(12);
+        ticket.add(13);
+        ticket.add(21);
+        ticket.add(22);
+        ticket.add(23);
+        ticket.add(31);
+        ticket.add(32);
+        ticket.add(33);
+        ticket.add(41);
+        ticket.add(42);
+        ticket.add(43);
+        ticket.add(51);
+        ticket.add(52);
+        ticket.add(53);
+        ticket.add(61);
+        ticket.add(62);
+        ticket.add(63);
+        ticket.add(71);
+        ticket.add(72);
+        ticket.add(73);
+        ticket.add(81);
+        ticket.add(82);
+        ticket.add(83);
         // When
         var row0Blanks = ticket.getRow(0).stream()
                 .filter(number -> number == 0)
@@ -143,5 +161,28 @@ public class TicketGeneratorTest {
         // Then
         assertEquals(4, row0Blanks);
         assertEquals(5, row0Numbers);
+    }
+
+    @Test
+    @DisplayName("A strip should not contain duplicate numbers")
+    public void aStripShouldNotContainDuplicateNumbers() {
+        // Given
+        var set = new HashSet<Integer>();
+        var strip = new Strip();
+        strip.generateTickets();
+        // When
+        strip.getTickets().forEach(ticket -> {
+            for (var row = 0; row < 3; row++) {
+                ticket.getRow(row).stream()
+                        .filter(number -> number != 0)
+                        .forEach(number -> {
+                            if (!set.add(number)) {
+                                throw new IllegalStateException("Found duplicate number");
+                            }
+                        });
+            }
+        });
+        // Then
+        assertTrue(true);
     }
 }
