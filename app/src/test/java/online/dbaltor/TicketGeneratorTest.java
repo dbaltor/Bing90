@@ -3,8 +3,11 @@ package online.dbaltor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -184,5 +187,34 @@ public class TicketGeneratorTest {
         });
         // Then
         assertTrue(true);
+    }
+
+    @Test
+    @DisplayName("A strip should contain 90 numbers")
+    public void aStripShouldContain90Numbers() {
+        // Given
+        var strip = new Strip();
+        // When
+        var grid = strip.generateGrid(new Random());
+        // Then
+        var sum = Arrays.stream(grid)
+                .flatMapToInt(IntStream::of)
+                .sum();
+        assertEquals(90, sum);
+    }
+
+    @Test
+    @DisplayName("Each ticket should contain 15 numbers")
+    public void eachTicketShouldContain15Numbers() {
+        // Given
+        var strip = new Strip();
+        // When
+        var grid = strip.generateGrid(new Random());
+        // Then
+        var sum = Arrays.stream(grid)
+                .mapToLong(s -> Arrays.stream(s).sum())
+                .filter(n -> n != 15)
+                .count();
+        assertEquals(0, sum);
     }
 }
