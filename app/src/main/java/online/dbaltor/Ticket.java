@@ -1,7 +1,7 @@
 package online.dbaltor;
 
-import java.io.PrintStream;
 import java.util.*;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,10 +23,10 @@ public class Ticket {
                     List.of(true, true, true)));
 
     private final List<Column> columns = new ArrayList<>(NUMBER_OF_COLUMNS);
-    private final Random random;
+    private final RandomGenerator random;
     private final int[] numbersPerColumn;
 
-    public Ticket(Random random, int[] numbersPerColumn) {
+    public Ticket(RandomGenerator random, int[] numbersPerColumn) {
         this.random = random;
         this.numbersPerColumn = numbersPerColumn;
         var grid = generateGrid();

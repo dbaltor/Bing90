@@ -1,6 +1,7 @@
 package online.dbaltor;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -11,12 +12,16 @@ public class Strip {
     private static final int NUMBER_OF_COLUMNS = 9;
 
     private final List<Ticket> tickets = new ArrayList<>(NUMBER_OF_TICKETS);
-    private final List<Integer> randomNumbers = new ArrayList<>(NUMBERS);
-    private final Random random = new Random();
+    private final int[] randomNumbers = new int[NUMBERS];
+    private final RandomGenerator random;
 
-    public Strip() {
-        IntStream.rangeClosed(1, NUMBERS).forEach(randomNumbers::add);
-        Collections.shuffle(randomNumbers);
+    public Strip(RandomGenerator random) {
+        this.random = random;
+        // used for-loop rather than IntStream to speed up the generation of the numbers
+        for (int n = 0; n < NUMBERS; n++) {
+            randomNumbers[n] = n + 1;
+        }
+        Randomise.shuffle(randomNumbers, random);
     }
 
     public List<Ticket> getTickets() {
@@ -24,7 +29,7 @@ public class Strip {
     }
 
     public void generateTickets() {
-        var grid = generateGrid(random);
+        var grid = generateGrid();
         IntStream.range(0, NUMBER_OF_TICKETS)
                 .forEach(col -> tickets.add(new Ticket(random, grid[col])));
         for (var number : randomNumbers) {
@@ -37,7 +42,7 @@ public class Strip {
         }
     }
 
-    private int[][] generateGrid(Random random) {
+    private int[][] generateGrid() {
         var sum9 = List.of(
                 Arrays.asList(1, 1, 1, 1, 2, 3),
                 Arrays.asList(1, 1, 1, 2, 2, 2));
@@ -52,14 +57,14 @@ public class Strip {
 
         var grid = new int[NUMBER_OF_TICKETS][NUMBER_OF_COLUMNS];
 
-        fillOutColumn(random, sum9, grid, 0);
-        IntStream.range(1, NUMBER_OF_COLUMNS - 1).forEach(i -> fillOutColumn(random, sum10, grid, i));
-        fillOutColumn(random, sum11, grid, NUMBER_OF_COLUMNS - 1);
+        fillOutColumn(sum9, grid, 0);
+        IntStream.range(1, NUMBER_OF_COLUMNS - 1).forEach(i -> fillOutColumn(sum10, grid, i));
+        fillOutColumn(sum11, grid, NUMBER_OF_COLUMNS - 1);
         balanceTickets(grid);
         return grid;
     }
 
-    private void fillOutColumn(Random random, List<List<Integer>> template, int[][] grid, int columnIndex) {
+    private void fillOutColumn(List<List<Integer>> template, int[][] grid, int columnIndex) {
         var column = template.get(random.nextInt(0, template.size() - 1));
         Collections.shuffle(column);
         addColumn(grid, columnIndex, column);

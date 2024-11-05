@@ -11,7 +11,6 @@ public class TicketTest {
 
     private final int[] numbersPerColumn = new int[]{2, 2, 1, 2, 3, 1, 1, 1, 2};
 
-
     @Test
     @DisplayName("A ticket should contain 9 columns")
     public void aTicketShouldContain9Columns() {
