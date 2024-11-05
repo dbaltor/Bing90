@@ -36,7 +36,7 @@ public class Strip {
         }
     }
 
-    public int[][] generateGrid(Random random) {
+    private int[][] generateGrid(Random random) {
         var sum9 = List.of(
                 Arrays.asList(1, 1, 1, 1, 2, 3),
                 Arrays.asList(1, 1, 1, 2, 2, 2));

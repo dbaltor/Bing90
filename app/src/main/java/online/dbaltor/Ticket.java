@@ -71,7 +71,7 @@ public class Ticket {
     private int getTargetDiff(int maxNumbersPerRow, int minNumbersPerRow) {
         return Math.min(
                 maxNumbersPerRow - NUMBERS_PER_ROW,
-                NUMBERS_PER_ROW- minNumbersPerRow);
+                NUMBERS_PER_ROW - minNumbersPerRow);
     }
 
     private void moveNumbersAcrossRows(boolean[][] grid, int rowWithLessNumbers, int rowWithMoreNumbers, int targetDiff) {
@@ -99,14 +99,6 @@ public class Ticket {
                 rowNumber -> grid[rowNumber][columnNumber] = columnLayout.get(rowNumber));
     }
 
-    public int getNumberOfColumns() {
-        return NUMBER_OF_COLUMNS;
-    }
-
-    public int getNumberOfRows() {
-        return NUMBER_OF_ROWS;
-    }
-
     /**
      * Add a number to the ticket if the correct column still have available slots.
      *
@@ -118,18 +110,27 @@ public class Ticket {
         return columns.get(columnNumber).add(number);
     }
 
-    public List<Column> getColumns() {
-        return columns;
-    }
-
     public List<Integer> getRow(int rowNumber) {
         if (rowNumber < 0 || rowNumber >= NUMBER_OF_ROWS) {
             throw new IllegalArgumentException("Invalid row number");
         }
-        var row = new ArrayList<Integer>(NUMBER_OF_COLUMNS);
-        columns.forEach(
-                column -> row.add(column.getNumbers().get(rowNumber))
-        );
-        return row;
+
+        return columns.stream()
+                .map(column -> column.getNumbers().get(rowNumber))
+                .toList();
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public List<List<Integer>> getRows() {
+        return IntStream.range(0, NUMBER_OF_ROWS)
+                .mapToObj(rowNumber ->
+                        columns.stream()
+                                .mapToInt(column -> column.getNumbers().get(rowNumber))
+                                .boxed()
+                                .toList())
+                .toList();
     }
 }
