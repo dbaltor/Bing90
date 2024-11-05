@@ -2,6 +2,8 @@ plugins {
     application
 }
 
+val main = "online.dbaltor.TicketGenerator"
+
 repositories {
     mavenCentral()
 }
@@ -19,9 +21,15 @@ java {
 }
 
 application {
-    mainClass = "online.dbaltor.TicketGenerator"
+    mainClass = main
 }
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = main
+    }
 }
