@@ -1,19 +1,103 @@
 package online.dbaltor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class Ticket {
     private static final int NUMBER_OF_COLUMNS = 9;
     private static final int NUMBER_OF_ROWS = 3;
-    private static final int BLANKS_PER_ROW = 4;
-    private static final double NUMBERS_PER_ROW = 5;
-    // 1 means a blank
-    private static final List<Integer> VALID_COLUMN_LAYOUTS = List.of(0b000, 0b100, 0b010, 0b001, 0b110, 0b011, 0b101);
+    private static final int NUMBERS_PER_ROW = 5;
+
+    private static final List<List<List<Boolean>>> VALID_COLUMN_LAYOUTS = List.of(
+            List.of(
+                    List.of(true, false, false),
+                    List.of(false, true, false),
+                    List.of(false, false, true)),
+            List.of(
+                    List.of(true, true, false),
+                    List.of(true, false, true),
+                    List.of(false, true, true)),
+            List.of(
+                    List.of(true, true, true)));
 
     private final List<Column> columns = new ArrayList<>(NUMBER_OF_COLUMNS);
-    private final Counters counters = new Counters();
+    private final Random random;
+    private final int[] numbersPerColumn;
+
+    public Ticket(Random random, int[] numbersPerColumn) {
+        this.random = random;
+        this.numbersPerColumn = numbersPerColumn;
+        var grid = generateGrid();
+
+        IntStream.range(0, NUMBER_OF_COLUMNS).forEach(col ->
+                columns.add(new Column(grid[0][col], grid[1][col], grid[2][col])));
+    }
+
+    private boolean[][] generateGrid() {
+        var grid = new boolean[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
+
+        IntStream.range(0, NUMBER_OF_COLUMNS).forEach(
+                columnNumber -> fillOutColumn(grid, columnNumber));
+        balanceRows(grid);
+        return grid;
+    }
+
+    private void balanceRows(boolean[][] grid) {
+        while (true) {
+            var numbersPerRow =
+                    IntStream.range(0, NUMBER_OF_ROWS)
+                            .mapToObj(rowNumber -> IntStream.range(0, grid[rowNumber].length)
+                                    .mapToObj(col -> grid[rowNumber][col])
+                                    .filter(bool -> bool)
+                                    .count())
+                            .map(Math::toIntExact)
+                            .toList();
+            int minNumbersPerRow = Collections.min(numbersPerRow);
+            int rowWithLessNumbers = numbersPerRow.indexOf(minNumbersPerRow);
+            int maxNumbersPerRow = Collections.max(numbersPerRow);
+            int rowWithMoreNumbers = numbersPerRow.indexOf(maxNumbersPerRow);
+
+            if (minNumbersPerRow == maxNumbersPerRow) break;
+
+            int targetDiff = getTargetDiff(maxNumbersPerRow, minNumbersPerRow);
+            moveNumbersAcrossRows(
+                    grid,
+                    rowWithLessNumbers,
+                    rowWithMoreNumbers,
+                    targetDiff);
+        }
+    }
+
+    private int getTargetDiff(int maxNumbersPerRow, int minNumbersPerRow) {
+        return Math.min(
+                maxNumbersPerRow - NUMBERS_PER_ROW,
+                NUMBERS_PER_ROW- minNumbersPerRow);
+    }
+
+    private void moveNumbersAcrossRows(boolean[][] grid, int rowWithLessNumbers, int rowWithMoreNumbers, int targetDiff) {
+        var counter = 0;
+        for (var col = 0; col < NUMBER_OF_COLUMNS; col++) {
+            if (numbersPerColumn[col] != 3 && grid[rowWithMoreNumbers][col]) {
+                if (!grid[rowWithLessNumbers][col]) {
+                    grid[rowWithMoreNumbers][col] = false;
+                    grid[rowWithLessNumbers][col] = true;
+                    counter++;
+                    if (counter == targetDiff) break;
+                }
+            }
+        }
+    }
+
+    private void fillOutColumn(boolean[][] grid, int columnNumber) {
+        var layouts = VALID_COLUMN_LAYOUTS.get(numbersPerColumn[columnNumber] - 1);
+        var columnLayout = layouts.get(random.nextInt(0, layouts.size()));
+        updateColumn(grid, columnNumber, columnLayout);
+    }
+
+    private void updateColumn(boolean[][] grid, int columnNumber, List<Boolean> columnLayout) {
+        IntStream.range(0, NUMBER_OF_ROWS).forEach(
+                rowNumber -> grid[rowNumber][columnNumber] = columnLayout.get(rowNumber));
+    }
 
     public int getNumberOfColumns() {
         return NUMBER_OF_COLUMNS;
@@ -21,10 +105,6 @@ public class Ticket {
 
     public int getNumberOfRows() {
         return NUMBER_OF_ROWS;
-    }
-
-    public Ticket() {
-        mapBlanks();
     }
 
     /**
@@ -51,108 +131,5 @@ public class Ticket {
                 column -> row.add(column.getNumbers().get(rowNumber))
         );
         return row;
-    }
-
-    /**
-     * Create the ticket layout by mapping where the blanks will be in each column.
-     * <p>
-     * The following rules are enforced:
-     * - a column cannot have three blanks
-     * - a row contain five numbers and four blanks
-     */
-    private void mapBlanks() {
-        var random = new Random();
-        int columnLayout;
-        var columnIndex = 0;
-
-        while (columnIndex < NUMBER_OF_COLUMNS) {
-            columnLayout = getColumnLayout(random, counters);
-
-            if (columnLayout == 0b111) { // three blanks
-                columnLayout = swapOneBlankWithPreviousColumn(columnLayout, columnIndex);
-            }
-
-            updateCounters(columnLayout, columnIndex);
-            columns.add(new Column(NUMBER_OF_ROWS, columnLayout));
-            columnIndex++;
-        }
-    }
-
-    private int getColumnLayout(Random random, Counters counters) {
-        var columnLayout = VALID_COLUMN_LAYOUTS.get(random.nextInt(0, VALID_COLUMN_LAYOUTS.size()));
-        if (counters.row1BlankCounter == BLANKS_PER_ROW) {
-            columnLayout = 0b011 & columnLayout; // set a number for row 1
-        }
-        if (counters.row1NumberCounter == NUMBERS_PER_ROW) {
-            columnLayout = 0b100 | columnLayout; // set a blank for row 1
-        }
-        if (counters.row2BlankCounter == BLANKS_PER_ROW) {
-            columnLayout = 0b101 & columnLayout; // set a number for row 2
-        }
-        if (counters.row2NumberCounter == NUMBERS_PER_ROW) {
-            columnLayout = 0b010 | columnLayout; // set a blank for row 2
-        }
-        if (counters.row3BlankCounter == BLANKS_PER_ROW) {
-            columnLayout = 0b110 & columnLayout; // set a number for row 3
-        }
-        if (counters.row3NumberCounter == NUMBERS_PER_ROW) {
-            columnLayout = 0b001 | columnLayout; // set a blank for row 3
-        }
-        return columnLayout;
-    }
-
-    private int swapOneBlankWithPreviousColumn(int columnLayout, int columnIndex) {
-        for (var i = columnIndex - 1; i >= 0; i--) {
-            var blankMap = columns.get(i).getBlankMap();
-            switch (blankMap) {
-                case 0, 1, 2 : {
-                    // add blank to previous column
-                    columns.set(i, new Column(NUMBER_OF_ROWS, blankMap | 0b100));
-                    // update counters with +1 blank and -1 number
-                    counters.incrementRow1BlankCounterBy(1, columnIndex - 1);
-                    // remove blank from this column
-                    return 0b011;
-                }
-                case 4 : {
-                    // add blank to previous column
-                    columns.set(i, new Column(NUMBER_OF_ROWS, blankMap | 0b001));
-                    // update counters with +1 blank and -1 number
-                    counters.incrementRow3BlankCounterBy(1, columnIndex - 1);
-                    // remove blank from this column
-                    return 0b110;
-                }
-            }
-        }
-        return columnLayout;
-    }
-
-    private void updateCounters(int columnLayout, int columnIndex) {
-        counters.incrementRow1BlankCounterBy((columnLayout & 0b100) >> 2, columnIndex);
-        counters.incrementRow2BlankCounterBy((columnLayout & 0b010) >> 1, columnIndex);
-        counters.incrementRow3BlankCounterBy(columnLayout & 0b001, columnIndex);
-    }
-
-    private static class Counters {
-        int row1BlankCounter;
-        int row2BlankCounter;
-        int row3BlankCounter;
-        int row1NumberCounter;
-        int row2NumberCounter;
-        int row3NumberCounter;
-
-        void incrementRow1BlankCounterBy(int value, int columnIndex) {
-            row1BlankCounter = row1BlankCounter + value;
-            row1NumberCounter = columnIndex + 1 - row1BlankCounter;
-        }
-
-        void incrementRow2BlankCounterBy(int value, int columnIndex) {
-            row2BlankCounter = row2BlankCounter + value;
-            row2NumberCounter = columnIndex + 1 - row2BlankCounter;
-        }
-
-        void incrementRow3BlankCounterBy(int value, int columnIndex) {
-            row3BlankCounter = row3BlankCounter + value;
-            row3NumberCounter = columnIndex + 1 - row3BlankCounter;
-        }
     }
 }

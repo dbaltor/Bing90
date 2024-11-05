@@ -13,11 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TicketGeneratorTest {
 
+    private final int[] numbersPerColumn = new int[]{2, 2, 1, 2, 3, 1, 1, 1, 2};
+
     @Test
     @DisplayName("A strip should contain 6 tickets")
     public void aStripShouldContain6Tickets() {
         // Given
         var strip = new Strip();
+        strip.generateTickets();
         // When
         var numberOfTickets = strip.getTickets().size();
         // Then
@@ -28,7 +31,7 @@ public class TicketGeneratorTest {
     @DisplayName("A ticket should contain 9 columns")
     public void aTicketShouldContain9Columns() {
         // Given
-        var ticket = new Ticket();
+        var ticket = new Ticket(new Random(), numbersPerColumn);
         // When
         var numberOfColumns = ticket.getNumberOfColumns();
         // Then
@@ -39,7 +42,7 @@ public class TicketGeneratorTest {
     @DisplayName("A ticket should contain 3 rows")
     public void aTicketShouldContain3Rows() {
         // Given
-        var ticket = new Ticket();
+        var ticket = new Ticket(new Random(), numbersPerColumn);
         // When
         var numberOfColumns = ticket.getNumberOfRows();
         // Then
@@ -50,11 +53,11 @@ public class TicketGeneratorTest {
     @DisplayName("A column should contain numbers in ascending order")
     public void aColumnShouldContainNumbersInAscendingOrder() {
         // Given
-        var column1 = new Column(3, 0b000); // 000 means no spaces
+        var column1 = new Column(true, true, true); // means three numbers
         column1.add(9);
         column1.add(5);
         column1.add(1);
-        var column2 = new Column(3, 0b010); // 010 means one space in the middle
+        var column2 = new Column(true, false, true); // means one space in the middle
         column2.add(9);
         column2.add(5);
         // When
@@ -73,7 +76,7 @@ public class TicketGeneratorTest {
         // When
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> {
-                    var column = new Column(3, 0b111);
+                    var column = new Column(false, false, false);
                 });
         // Then
         assertEquals(expectedMessage, exception.getMessage());
@@ -84,7 +87,7 @@ public class TicketGeneratorTest {
     public void aColumnShouldNotReturnNumbersBeforeInitialised() {
         // Given
         var expectedMessage = "Column has not been fully initialised";
-        var column = new Column(3, 0b100);
+        var column = new Column(false, true, true);
         column.add(1);
         // When
         var exception = assertThrows(IllegalStateException.class,
@@ -99,7 +102,7 @@ public class TicketGeneratorTest {
     @DisplayName("A ticket should reject a request for an invalid row number")
     public void aTicketShouldRejectARequestForAnInvalidRowNumber() {
         // Given
-        var ticket = new Ticket();
+        var ticket = new Ticket(new Random(), numbersPerColumn);
         // When
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> {
@@ -113,7 +116,7 @@ public class TicketGeneratorTest {
     @DisplayName("A number should be added to the right column")
     public void aNumberShouldBeAddedToTheRightColumn() {
         // Given
-        var ticket = new Ticket();
+        var ticket = new Ticket(new Random(), numbersPerColumn);
         // When
         ticket.add(31);
         ticket.add(34);
@@ -126,7 +129,7 @@ public class TicketGeneratorTest {
     @DisplayName("Each ticket row should contain 5 numbers and 4 blanks")
     public void eachTicketRowShouldContain5NumbersAnd4Blanks() {
         // Given
-        var ticket = new Ticket();
+        var ticket = new Ticket(new Random(), numbersPerColumn);
         ticket.add(1);
         ticket.add(2);
         ticket.add(3);

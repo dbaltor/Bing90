@@ -14,9 +14,7 @@ public class Strip {
     private final Random random = new Random();
 
     public Strip() {
-        for (var i = 1; i <= NUMBERS; i++) {
-            randomNumbers.add(i);
-        }
+        IntStream.rangeClosed(1, NUMBERS).forEach(randomNumbers::add);
         Collections.shuffle(randomNumbers);
     }
 
@@ -25,9 +23,9 @@ public class Strip {
     }
 
     public void generateTickets() {
-        for (var i = 0; i < NUMBER_OF_TICKETS; i++) {
-            tickets.add(new Ticket());
-        }
+        var grid = generateGrid(random);
+        IntStream.range(0, NUMBER_OF_TICKETS)
+                .forEach(col -> tickets.add(new Ticket(random, grid[col])));
         for (var number : randomNumbers) {
             if (tickets.get(0).add(number)) continue;
             if (tickets.get(1).add(number)) continue;
@@ -54,9 +52,7 @@ public class Strip {
         var grid = new int[NUMBER_OF_TICKETS][NUMBER_OF_COLUMNS];
 
         fillOutColumn(random, sum9, grid, 0);
-        for (var i = 1; i < NUMBER_OF_COLUMNS - 1; i++) {
-            fillOutColumn(random, sum10, grid, i);
-        }
+        IntStream.range(1, NUMBER_OF_COLUMNS - 1).forEach(i -> fillOutColumn(random, sum10, grid, i));
         fillOutColumn(random, sum11, grid, NUMBER_OF_COLUMNS - 1);
         balanceTickets(grid);
         return grid;
@@ -69,17 +65,15 @@ public class Strip {
     }
 
     private void addColumn(int[][] grid, int columnNumber, List<Integer> numbers) {
-        for (var rowNumber = 0; rowNumber < numbers.size(); rowNumber++) {
-            grid[rowNumber][columnNumber] = numbers.get(rowNumber);
-        }
+        IntStream.range(0, numbers.size())
+                .forEach(rowNumber -> grid[rowNumber][columnNumber] = numbers.get(rowNumber));
     }
 
     private void balanceTickets(int[][] grid) {
         while (true) {
-            var numbersPerTicket = new ArrayList<Integer>(NUMBER_OF_TICKETS);
-            for (var ticketNumber = 0; ticketNumber < NUMBER_OF_TICKETS; ticketNumber++)
-                numbersPerTicket.add(IntStream.of(grid[ticketNumber]).sum());
-
+            var numbersPerTicket = IntStream.range(0, NUMBER_OF_TICKETS)
+                    .mapToObj(ticketNumber -> IntStream.of(grid[ticketNumber]).sum())
+                    .toList();
             int minNumbersPerTicket = Collections.min(numbersPerTicket);
             int smallestTicket = numbersPerTicket.indexOf(minNumbersPerTicket);
             int maxNumbersPerTicket = Collections.max(numbersPerTicket);

@@ -6,24 +6,20 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Column {
-    private final int blankMap;
+    private final List<Boolean> columnLayout;
     private final int capacity;
     private final Queue<Integer> orderingQueue;
     private final ArrayList<Integer> numbers;
 
-    public Column(int numberOfRows, int blankMap) {
-        if (blankMap == 0b111) // means three spaces
+    public Column(boolean row1, boolean row2, boolean row3) {
+        if (!(row1 || row2 || row3))
             throw new IllegalArgumentException("Column cannot contain three blanks");
-        this.blankMap = blankMap;
-        this.capacity = ((~blankMap & 0b100) >> 2)
-                + ((~blankMap & 0b010) >> 1)
-                + (~blankMap & 0b001);
-        this.orderingQueue = new PriorityQueue<>(numberOfRows);
-        this.numbers = new ArrayList<Integer>(numberOfRows);
-    }
-
-    public int getBlankMap() {
-        return blankMap;
+        this.columnLayout = List.of(row1, row2, row3);
+        this.capacity = (int) columnLayout.stream()
+                .filter(bool -> bool)
+                .count();
+        this.orderingQueue = new PriorityQueue<>(capacity);
+        this.numbers = new ArrayList<>(3);
     }
 
     public boolean add(Integer number) {
@@ -38,13 +34,12 @@ public class Column {
     }
 
     private void createNumberList() {
-        for (var i = 2; i >= 0; i--) {
-            if ((blankMap & (1 << i)) != 0) { // blank position
-                numbers.add(0);
-            } else {
+        columnLayout.forEach(isNumber -> {
+            if (isNumber)
                 numbers.add(orderingQueue.poll());
-            }
-        }
+            else
+                numbers.add(0);
+        });
     }
 
     public List<Integer> getNumbers() {
