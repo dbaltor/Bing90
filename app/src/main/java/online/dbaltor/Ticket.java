@@ -1,6 +1,8 @@
 package online.dbaltor;
 
+import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Ticket {
@@ -132,5 +134,17 @@ public class Ticket {
                                 .boxed()
                                 .toList())
                 .toList();
+    }
+
+    public String print() {
+        return getRows().stream()
+                .map(row -> row.stream()
+                        .map(this::printNumber)
+                        .collect(Collectors.joining(" | ")))
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String printNumber(Integer n) {
+        return n == 0 ? "  " : String.format("%02d", n);
     }
 }

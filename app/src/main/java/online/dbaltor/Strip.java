@@ -1,6 +1,7 @@
 package online.dbaltor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Strip {
@@ -107,5 +108,11 @@ public class Strip {
         var adjust = Math.min(targetDiff, maxDiff);
         grid[largestTicket][maxDiffColumn] = grid[largestTicket][maxDiffColumn] - adjust;
         grid[smallestTicket][maxDiffColumn] = grid[smallestTicket][maxDiffColumn] + adjust;
+    }
+
+    public String printTickets() {
+        return tickets.stream()
+                .map(Ticket::print)
+                .collect(Collectors.joining("\n------------------------------------------\n"));
     }
 }
