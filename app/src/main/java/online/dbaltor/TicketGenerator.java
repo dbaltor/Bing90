@@ -6,13 +6,15 @@ import java.util.stream.IntStream;
 
 public class TicketGenerator {
 
+    public static final String PRNG = "Xoroshiro128PlusPlus";
+
     public static void main(String[] args) {
-        // used the fastest pseudo random generator for single thread
-        var random = RandomGeneratorFactory.of("Xoroshiro128PlusPlus").create();
+        // used a fast jumpable pseudo random generator
+        var random = RandomGeneratorFactory.of(PRNG).create();
         var numberOfStrips = 1;
-        if (args.length > 1) {
+        if (args.length > 0) {
             try {
-                numberOfStrips = Integer.parseInt(args[1]);
+                numberOfStrips = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
                 System.out.println("####################################################################");
                 System.out.println("The input is optional. If informed, it must be the number of strips.");
@@ -25,7 +27,7 @@ public class TicketGenerator {
             strip.generateTickets();
             System.out.println(strip.printTickets());
         } else {
-            var output = IntStream.range(1, numberOfStrips)
+            var output = IntStream.range(0, numberOfStrips)
                     .parallel()
                     .mapToObj(execution -> {
                         var strip = new Strip(random);

@@ -14,8 +14,8 @@ class TicketGeneratorTest {
     @Timeout(1)
     @DisplayName("Should generate 10K strips within 1s")
     public void shouldGenerate10KStripsWithin1S() {
-        // used the fastest pseudo random generator for single thread
-        var random = RandomGeneratorFactory.of("Xoroshiro128PlusPlus").create();
+        // used a fast jumpable pseudo random generator
+        var random = RandomGeneratorFactory.of(TicketGenerator.PRNG).create();
         IntStream.range(0, 10_000)
                 .parallel()
                 .forEach(execution -> {
