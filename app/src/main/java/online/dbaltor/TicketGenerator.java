@@ -1,39 +1,30 @@
 package online.dbaltor;
 
-import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TicketGenerator {
 
-    public static void main(String[] args) {
-        // used a fast jumpable pseudo random generator
-        var random = RandomGeneratorFactory.of("Xoroshiro128PlusPlus").create();
-        var numberOfStrips = 1;
-        if (args.length > 0) {
-            try {
-                numberOfStrips = Integer.parseInt(args[0]);
-            } catch (NumberFormatException e) {
-                System.out.println("####################################################################");
-                System.out.println("The input is optional. If informed, it must be the number of strips.");
-                System.out.println("####################################################################");
-                System.exit(1);
-            }
-        }
+    private final Randomizer randomizer;
+
+    public TicketGenerator(Randomizer randomizer) {
+        this.randomizer = randomizer;
+    }
+
+    public String generate(int numberOfStrips) {
         if (numberOfStrips == 1) {
-            var strip = new Strip(random);
+            var strip = new Strip(randomizer);
             strip.generateTickets();
-            System.out.println(strip.printTickets());
+            return strip.printTickets();
         } else {
-            var output = IntStream.range(0, numberOfStrips)
+            return IntStream.range(0, numberOfStrips)
                     .parallel()
                     .mapToObj(execution -> {
-                        var strip = new Strip(random);
+                        var strip = new Strip(randomizer);
                         strip.generateTickets();
                         return strip.printTickets();
                     })
                     .collect(Collectors.joining("\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"));
-            System.out.println(output);
         }
     }
 }

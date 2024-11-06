@@ -3,23 +3,21 @@ package online.dbaltor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashSet;
-import java.util.random.RandomGenerator;
-import java.util.random.RandomGeneratorFactory;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StripTest {
 
-    private RandomGenerator random;
     private Strip strip;
 
     @BeforeEach
     void setUp(){
-        random = RandomGeneratorFactory.of("Xoroshiro128PlusPlus").create();
-        strip = new Strip(random);
+        strip = new Strip(new Randomizer());
     }
     @Test
     @DisplayName("A strip should contain 6 tickets")
@@ -66,5 +64,17 @@ public class StripTest {
                 });
         // Then
         assertTrue(true);
+    }
+
+    @Test
+    @Timeout(1)
+    @DisplayName("Should generate 10K strips within 1s")
+    public void shouldGenerate10KStripsWithin1S() {
+        IntStream.range(0, 10_000)
+                .parallel()
+                .forEach(execution -> {
+                    var strip = new Strip(new Randomizer());
+                    strip.generateTickets();
+                });
     }
 }

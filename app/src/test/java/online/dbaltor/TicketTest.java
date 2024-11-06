@@ -3,8 +3,6 @@ package online.dbaltor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TicketTest {
@@ -15,7 +13,7 @@ public class TicketTest {
     @DisplayName("A ticket should contain 9 columns")
     public void aTicketShouldContain9Columns() {
         // Given
-        var ticket = new Ticket(new Random(), numbersPerColumn);
+        var ticket = new Ticket(new Randomizer(), numbersPerColumn);
         // When
         var numberOfColumns = ticket.getColumns().size();
         // Then
@@ -37,7 +35,7 @@ public class TicketTest {
     @DisplayName("A ticket should reject a request for an invalid row number")
     public void aTicketShouldRejectARequestForAnInvalidRowNumber() {
         // Given
-        var ticket = new Ticket(new Random(), numbersPerColumn);
+        var ticket = new Ticket(new Randomizer(), numbersPerColumn);
         // When
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> {
@@ -51,7 +49,7 @@ public class TicketTest {
     @DisplayName("A number should be added to the right column")
     public void aNumberShouldBeAddedToTheRightColumn() {
         // Given
-        var ticket = new Ticket(new Random(), numbersPerColumn);
+        var ticket = new Ticket(new Randomizer(), numbersPerColumn);
         ticket.add(31);
         ticket.add(34);
         ticket.add(37);
@@ -79,7 +77,7 @@ public class TicketTest {
     }
 
     private Ticket initialiseTicket() {
-        var ticket = new Ticket(new Random(), numbersPerColumn);
+        var ticket = new Ticket(new Randomizer(), numbersPerColumn);
         ticket.add(1);
         ticket.add(2);
         ticket.add(11);
