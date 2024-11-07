@@ -2,7 +2,7 @@ plugins {
     application
 }
 
-val main = "online.dbaltor.TicketGenerator"
+val main = "online.dbaltor.Bingo90"
 
 repositories {
     mavenCentral()

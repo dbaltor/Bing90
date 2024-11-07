@@ -1,7 +1,6 @@
 package online.dbaltor;
 
 import java.util.*;
-import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,15 +12,15 @@ public class Strip {
 
     private final List<Ticket> tickets = new ArrayList<>(NUMBER_OF_TICKETS);
     private final int[] randomNumbers = new int[NUMBERS];
-    private final RandomGenerator random;
+    private final Randomizer random;
 
-    public Strip(RandomGenerator random) {
-        this.random = random;
+    public Strip(Randomizer randomizer) {
+        this.random = randomizer;
         // used for-loop rather than IntStream to speed up the generation of the numbers
         for (int n = 0; n < NUMBERS; n++) {
             randomNumbers[n] = n + 1;
         }
-        Randomise.shuffle(randomNumbers, random);
+        randomizer.shuffle(randomNumbers);
     }
 
     public List<Ticket> getTickets() {
@@ -65,7 +64,7 @@ public class Strip {
     }
 
     private void fillOutColumn(List<List<Integer>> template, int[][] grid, int columnIndex) {
-        var column = template.get(random.nextInt(0, template.size() - 1));
+        var column = template.get(random.nextInt(template.size() - 1));
         Collections.shuffle(column);
         addColumn(grid, columnIndex, column);
     }

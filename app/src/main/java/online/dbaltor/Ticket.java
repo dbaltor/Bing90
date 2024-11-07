@@ -1,7 +1,6 @@
 package online.dbaltor;
 
 import java.util.*;
-import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,10 +22,10 @@ public class Ticket {
                     List.of(true, true, true)));
 
     private final List<Column> columns = new ArrayList<>(NUMBER_OF_COLUMNS);
-    private final RandomGenerator random;
+    private final Randomizer random;
     private final int[] numbersPerColumn;
 
-    public Ticket(RandomGenerator random, int[] numbersPerColumn) {
+    public Ticket(Randomizer random, int[] numbersPerColumn) {
         this.random = random;
         this.numbersPerColumn = numbersPerColumn;
         var grid = generateGrid();
@@ -42,6 +41,17 @@ public class Ticket {
                 columnNumber -> fillOutColumn(grid, columnNumber));
         balanceRows(grid);
         return grid;
+    }
+
+    private void fillOutColumn(boolean[][] grid, int columnNumber) {
+        var layouts = VALID_COLUMN_LAYOUTS.get(numbersPerColumn[columnNumber] - 1);
+        var columnLayout = layouts.get(random.nextInt(layouts.size()));
+        updateColumn(grid, columnNumber, columnLayout);
+    }
+
+    private void updateColumn(boolean[][] grid, int columnNumber, List<Boolean> columnLayout) {
+        IntStream.range(0, NUMBER_OF_ROWS).forEach(
+                rowNumber -> grid[rowNumber][columnNumber] = columnLayout.get(rowNumber));
     }
 
     private void balanceRows(boolean[][] grid) {
@@ -88,17 +98,6 @@ public class Ticket {
                 }
             }
         }
-    }
-
-    private void fillOutColumn(boolean[][] grid, int columnNumber) {
-        var layouts = VALID_COLUMN_LAYOUTS.get(numbersPerColumn[columnNumber] - 1);
-        var columnLayout = layouts.get(random.nextInt(0, layouts.size()));
-        updateColumn(grid, columnNumber, columnLayout);
-    }
-
-    private void updateColumn(boolean[][] grid, int columnNumber, List<Boolean> columnLayout) {
-        IntStream.range(0, NUMBER_OF_ROWS).forEach(
-                rowNumber -> grid[rowNumber][columnNumber] = columnLayout.get(rowNumber));
     }
 
     /**
